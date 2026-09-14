@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import fcntl
 import os
+from contextlib import contextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 db = SQLAlchemy()
@@ -55,14 +59,37 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.register_blueprint(api_bp, url_prefix="/api")
 
     with app.app_context():
-        db.create_all()
-        _bootstrap_admin(app)
+        _init_database(app)
 
     from geotrigger.cli import register_cli
 
     register_cli(app)
 
     return app
+
+
+@contextmanager
+def _instance_lock(app: Flask):
+    """Serialize schema init across gunicorn workers sharing one SQLite file."""
+    lock_path = Path(app.instance_path) / ".init.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(lock_path, "a+", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _init_database(app: Flask) -> None:
+    with _instance_lock(app):
+        try:
+            db.create_all()
+        except OperationalError as exc:
+            if "already exists" not in str(exc).lower():
+                raise
+            db.session.rollback()
+        _bootstrap_admin(app)
 
 
 def _bootstrap_admin(app: Flask) -> None:
