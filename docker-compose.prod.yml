@@ -19,3 +19,7 @@ services:
       - traefik.http.routers.geotrigger.tls.certresolver=letsencrypt
     networks:
       - proxy-network
+
+networks:
+  proxy-network:
+    external: true
