@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Reports · GeoTrigger{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Time reports</h1>
+  </div>
+</header>
+
+<form method="get" class="filters">
+  <label>From <input type="date" name="from" value="{{ from_date }}"></label>
+  <label>To <input type="date" name="to" value="{{ to_date }}"></label>
+  <button class="btn" type="submit">Filter</button>
+</form>
+
+{% if rows %}
+<table>
+  <thead>
+    <tr><th>User</th><th>Location</th><th>Time</th></tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+      {% for loc in row.locations.values() %}
+      <tr>
+        <td>{{ row.user.username }}</td>
+        <td>{{ loc.location.name }}</td>
+        <td class="mono">{{ format_duration(loc.seconds) }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="subtotal">
+        <td>{{ row.user.username }}</td>
+        <td>All sites</td>
+        <td class="mono">{{ format_duration(row.seconds) }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No sessions in this range.</p>
+{% endif %}
+
+<h2>Session log</h2>
+{% if sessions %}
+<table>
+  <thead>
+    <tr><th>User</th><th>Location</th><th>Started</th><th>Last ping</th><th>Time</th></tr>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+    <tr>
+      <td>{{ session.user.username }}</td>
+      <td>{{ session.location.name }}</td>
+      <td class="mono">{{ session.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td class="mono">{{ session.last_ping_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td class="mono">{{ format_duration(duration_seconds(session)) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

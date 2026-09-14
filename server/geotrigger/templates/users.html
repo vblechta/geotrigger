@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Users · GeoTrigger{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Users</h1>
+  </div>
+</header>
+
+<div class="grid-2">
+  <form method="post" class="stack panel">
+    <h2>Create account</h2>
+    {{ form.hidden_tag() }}
+    <label>
+      Username
+      {{ form.username() }}
+    </label>
+    <label>
+      Password
+      {{ form.password() }}
+    </label>
+    <label class="check">
+      {{ form.is_admin() }}
+      Administrator (can manage locations and settings)
+    </label>
+    <button type="submit" class="btn">Create user</button>
+  </form>
+
+  <div>
+    <h2>Directory</h2>
+    <table>
+      <thead>
+        <tr><th>User</th><th>Role</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.username }}</td>
+          <td>{% if user.is_admin %}admin{% else %}user{% endif %}</td>
+          <td>
+            <details>
+              <summary>Manage</summary>
+              <form method="post" action="{{ url_for('web.user_password', user_id=user.id) }}" class="stack tight">
+                {{ reset_form.hidden_tag() }}
+                {{ reset_form.password(placeholder="New password") }}
+                <button type="submit" class="btn btn-small">Update password</button>
+              </form>
+              {% if user.id != current_user.id %}
+              <form method="post" action="{{ url_for('web.user_delete', user_id=user.id) }}" onsubmit="return confirm('Delete this user and their time log?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="linkish danger">Delete</button>
+              </form>
+              {% endif %}
+            </details>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

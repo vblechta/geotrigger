@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoTrigger</string>
+    <string name="notification_channel">Presence tracking</string>
+    <string name="notification_title">GeoTrigger is watching sites</string>
+</resources>

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · GeoTrigger{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>{{ title }}</h1>
+  </div>
+  <a class="btn btn-ghost" href="{{ url_for('web.locations') }}">Back</a>
+</header>
+
+<div class="grid-2">
+  <form method="post" class="stack">
+    {{ form.hidden_tag() }}
+    <label>
+      Name
+      {{ form.name() }}
+    </label>
+    <div class="split">
+      <label>
+        Latitude
+        {{ form.latitude() }}
+      </label>
+      <label>
+        Longitude
+        {{ form.longitude() }}
+      </label>
+    </div>
+    <label>
+      Radius (meters)
+      {{ form.radius_meters() }}
+    </label>
+    {% if form.errors %}
+    <ul class="form-errors">
+      {% for field, errors in form.errors.items() %}
+        {% for error in errors %}
+        <li>{{ field }}: {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <button type="submit" class="btn">Save location</button>
+    <p class="hint">Click the map to drop the pin. The circle is the geofence the Android client uses.</p>
+  </form>
+  <div id="editor-map" class="map map-wide"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/map-tiles.js') }}"></script>
+<script src="{{ url_for('static', filename='js/location-map.js') }}"></script>
+{% endblock %}

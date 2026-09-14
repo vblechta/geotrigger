@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}GeoTrigger{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body{% if map_api_key %} data-map-key="{{ map_api_key }}"{% endif %}>
+  <div class="shell">
+    {% if current_user.is_authenticated %}
+    <aside class="rail">
+      <a class="brand" href="{{ url_for('web.dashboard') }}">
+        <span class="mark" aria-hidden="true"></span>
+        GeoTrigger
+      </a>
+      <nav>
+        <a href="{{ url_for('web.dashboard') }}" class="{{ 'active' if request.endpoint == 'web.dashboard' }}">My time</a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('web.locations') }}" class="{{ 'active' if request.endpoint in ['web.locations', 'web.location_new', 'web.location_edit'] }}">Locations</a>
+        <a href="{{ url_for('web.users') }}" class="{{ 'active' if request.endpoint == 'web.users' }}">Users</a>
+        <a href="{{ url_for('web.reports') }}" class="{{ 'active' if request.endpoint == 'web.reports' }}">Reports</a>
+        <a href="{{ url_for('web.settings') }}" class="{{ 'active' if request.endpoint == 'web.settings' }}">Settings</a>
+        {% endif %}
+      </nav>
+      <div class="rail-foot">
+        <div class="who">
+          <span class="who-name">{{ current_user.username }}</span>
+          <span class="who-role">{% if current_user.is_admin %}administrator{% else %}field user{% endif %}</span>
+        </div>
+        <form method="post" action="{{ url_for('web.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="linkish">Sign out</button>
+        </form>
+      </div>
+    </aside>
+    {% endif %}
+    <main class="{{ 'content' if current_user.is_authenticated else 'content content-solo' }}">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flashes">
+            {% for category, message in messages %}
+              <p class="flash flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block body %}{% endblock %}
+    </main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

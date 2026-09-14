@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Locations · GeoTrigger{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Locations</h1>
+  </div>
+  <a class="btn" href="{{ url_for('web.location_new') }}">New location</a>
+</header>
+
+<div id="map" class="map map-wide" data-locations='{{ location_payloads | tojson }}'></div>
+
+{% if locations %}
+<table>
+  <thead>
+    <tr><th>Name</th><th>Coordinates</th><th>Radius</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for loc in locations %}
+    <tr>
+      <td>{{ loc.name }}</td>
+      <td class="mono">{{ "%.5f"|format(loc.latitude) }}, {{ "%.5f"|format(loc.longitude) }}</td>
+      <td class="mono">{{ loc.radius_meters }} m</td>
+      <td class="row-actions">
+        <a href="{{ url_for('web.location_edit', location_id=loc.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('web.location_delete', location_id=loc.id) }}" onsubmit="return confirm('Delete this location? Past sessions for it will be removed.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="linkish danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No sites yet. Create a location with a name, pin, and radius. The Android app only heartbeats inside those circles.</p>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/map-tiles.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard-map.js') }}"></script>
+{% endblock %}

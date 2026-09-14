@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · GeoTrigger{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">{{ code }}</p>
+    <h1>{{ message }}</h1>
+  </div>
+  <a class="btn" href="{{ url_for('web.dashboard') }}">Back to my time</a>
+</header>
+{% endblock %}

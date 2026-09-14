@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign in · GeoTrigger{% endblock %}
+{% block body %}
+<section class="login-wrap">
+  <div class="login-panel">
+    <p class="eyebrow">Presence timekeeping</p>
+    <h1>GeoTrigger</h1>
+    <p class="lede">Sign in to review time on site, or connect the Android client with this server’s public URL.</p>
+    <form method="post" class="stack">
+      {{ form.hidden_tag() }}
+      <label>
+        Username
+        {{ form.username(autocomplete="username") }}
+      </label>
+      <label>
+        Password
+        {{ form.password(autocomplete="current-password") }}
+      </label>
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

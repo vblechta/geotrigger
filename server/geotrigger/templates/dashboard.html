@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}My time · GeoTrigger{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Field log</p>
+    <h1>Time on site</h1>
+  </div>
+  <p class="meta">Heartbeat every {{ ping_interval_seconds() }}s · duration includes one interval after the last ping</p>
+</header>
+
+<section class="grid-2">
+  <div>
+    <h2>By location</h2>
+    {% if summary %}
+    <table>
+      <thead>
+        <tr><th>Location</th><th>Visits</th><th>Time</th></tr>
+      </thead>
+      <tbody>
+        {% for row in summary %}
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.visits }}</td>
+          <td class="mono">{{ row.duration_label }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">No presence recorded yet. Open the Android app at a defined site and keep it running.</p>
+    {% endif %}
+  </div>
+  <div>
+    <h2>Sites</h2>
+    <div id="map" class="map" data-locations='{{ location_payloads | tojson }}'></div>
+  </div>
+</section>
+
+<h2>Recent sessions</h2>
+{% if sessions %}
+<table>
+  <thead>
+    <tr><th>Location</th><th>Started</th><th>Last ping</th><th>Status</th><th>Time</th></tr>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+    <tr>
+      <td>{{ session.location.name }}</td>
+      <td class="mono">{{ session.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td class="mono">{{ session.last_ping_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{% if session.ended_at %}closed{% else %}open{% endif %}</td>
+      <td class="mono">{{ format_duration(duration_seconds(session)) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">Sessions appear here after the first in-range heartbeat.</p>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/map-tiles.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard-map.js') }}"></script>
+{% endblock %}

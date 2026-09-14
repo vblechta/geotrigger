@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Settings · GeoTrigger{% endblock %}
+{% block body %}
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Settings</h1>
+  </div>
+</header>
+
+<form method="post" class="stack panel narrow">
+  {{ form.hidden_tag() }}
+  <label>
+    Presence ping interval (seconds)
+    {{ form.ping_interval_seconds() }}
+  </label>
+  <p class="hint">
+    Default is 300 (5 minutes). The Android app asks for this value with the location list,
+    then sends a heartbeat at that interval only while the device is inside a location radius.
+    Allowed range: 30–3600 seconds.
+  </p>
+  <p class="meta">Currently {{ interval }} seconds ({{ (interval / 60) | round(1) }} minutes).</p>
+  <label>
+    Map tile API key
+    {{ form.map_api_key(autocomplete="off", placeholder="MapTiler key or Mapbox pk.… token") }}
+  </label>
+  <p class="hint">
+    Location maps need a tile key — the old public CARTO tiles now show “API KEY REQUIRED”.
+    Create a free key at
+    <a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener">MapTiler Cloud</a>,
+    or paste a Mapbox public token that starts with <span class="mono">pk.</span>
+    Leave this empty to use OpenStreetMap tiles (no key).
+  </p>
+  <button type="submit" class="btn">Save settings</button>
+</form>
+{% endblock %}
