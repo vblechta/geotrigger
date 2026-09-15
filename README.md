@@ -125,5 +125,6 @@ Environment variables (see `server/.env.example`):
 | `SECRET_KEY` | Flask secret; generated and stored in `instance/secret_key` if unset |
 | `DATABASE_URL` | Default SQLite file in the instance folder |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Bootstrap admin when the database is empty |
+| `TZ` | IANA timezone for server-side timestamps and report day bounds (default `Europe/Prague` in Docker). The web UI also converts times in the browser. |
 
 Ping interval bounds: 30–3600 seconds.

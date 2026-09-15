@@ -58,6 +58,11 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp, url_prefix="/api")
 
+    from geotrigger.util import format_local, utc_iso
+
+    app.jinja_env.filters["local_time"] = format_local
+    app.jinja_env.filters["utc_iso"] = utc_iso
+
     with app.app_context():
         _init_database(app)
 

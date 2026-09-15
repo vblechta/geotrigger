@@ -51,8 +51,8 @@
     <tr>
       <td>{{ session.user.username }}</td>
       <td>{{ session.location.name }}</td>
-      <td class="mono">{{ session.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td class="mono">{{ session.last_ping_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td><time class="local-time mono" datetime="{{ session.started_at | utc_iso }}">{{ session.started_at | local_time }}</time></td>
+      <td><time class="local-time mono" datetime="{{ session.last_ping_at | utc_iso }}">{{ session.last_ping_at | local_time }}</time></td>
       <td class="mono">{{ format_duration(duration_seconds(session)) }}</td>
     </tr>
     {% endfor %}

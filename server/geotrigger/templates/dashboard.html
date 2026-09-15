@@ -50,8 +50,8 @@
     {% for session in sessions %}
     <tr>
       <td>{{ session.location.name }}</td>
-      <td class="mono">{{ session.started_at.strftime("%Y-%m-%d %H:%M") }}</td>
-      <td class="mono">{{ session.last_ping_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td><time class="local-time mono" datetime="{{ session.started_at | utc_iso }}">{{ session.started_at | local_time }}</time></td>
+      <td><time class="local-time mono" datetime="{{ session.last_ping_at | utc_iso }}">{{ session.last_ping_at | local_time }}</time></td>
       <td>{% if session.ended_at %}closed{% else %}open{% endif %}</td>
       <td class="mono">{{ format_duration(duration_seconds(session)) }}</td>
     </tr>

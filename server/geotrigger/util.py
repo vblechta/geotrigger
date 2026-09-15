@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 from collections import defaultdict
 from datetime import datetime, time, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from geotrigger.models import PresenceSession, User
 from geotrigger.services import session_duration_seconds
@@ -13,6 +15,38 @@ def public_user(user: User) -> dict:
         "username": user.username,
         "is_admin": user.is_admin,
     }
+
+
+def ensure_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def utc_iso(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    return ensure_utc(value).isoformat()
+
+
+def local_tz():
+    name = (os.environ.get("TZ") or "").strip()
+    if name:
+        try:
+            return ZoneInfo(name)
+        except ZoneInfoNotFoundError:
+            pass
+    return datetime.now().astimezone().tzinfo or timezone.utc
+
+
+def to_local(value: datetime) -> datetime:
+    return ensure_utc(value).astimezone(local_tz())
+
+
+def format_local(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    return to_local(value).strftime("%Y-%m-%d %H:%M")
 
 
 def parse_iso_datetime(value: str) -> datetime:
@@ -31,7 +65,8 @@ def parse_date_boundary(value: str | None, end: bool = False) -> datetime | None
     except ValueError:
         return None
     clock = time.max if end else time.min
-    return datetime.combine(day, clock, tzinfo=timezone.utc)
+    local = datetime.combine(day, clock, tzinfo=local_tz())
+    return local.astimezone(timezone.utc)
 
 
 def format_duration(seconds: int) -> str:

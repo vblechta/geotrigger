@@ -8,6 +8,7 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
       DATABASE_URL: sqlite:///geotrigger.db
+      TZ: ${TZ:-Europe/Prague}
     volumes:
       - ./data:/app/instance
     labels:

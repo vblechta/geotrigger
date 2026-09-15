@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import select
@@ -9,7 +9,7 @@ from geotrigger import db
 from geotrigger.auth import api_login_required, current_bearer, issue_token, json_error, revoke_token
 from geotrigger.models import Location, PresenceSession, User
 from geotrigger.services import get_ping_interval_seconds, process_presence, session_duration_seconds
-from geotrigger.util import parse_iso_datetime, public_user, summarize_sessions
+from geotrigger.util import parse_iso_datetime, public_user, summarize_sessions, utc_iso
 
 api_bp = Blueprint("api", __name__)
 
@@ -158,15 +158,9 @@ def _session_payload(session: PresenceSession) -> dict:
     return {
         "id": session.id,
         "location": session.location.to_dict(),
-        "started_at": _iso(session.started_at),
-        "last_ping_at": _iso(session.last_ping_at),
-        "ended_at": _iso(session.ended_at) if session.ended_at else None,
+        "started_at": utc_iso(session.started_at),
+        "last_ping_at": utc_iso(session.last_ping_at),
+        "ended_at": utc_iso(session.ended_at) if session.ended_at else None,
         "open": session.ended_at is None,
         "duration_seconds": session_duration_seconds(session),
     }
-
-
-def _iso(value: datetime) -> str:
-    if value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
-    return value.isoformat()
